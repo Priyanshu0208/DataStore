@@ -1,2 +1,104 @@
-# Datastore
-CRD-operations-of-a-file-based-key-value-data-store This is a file which can be exposed as a library that supports the basic CRD(create, read, write) operations. Data store is meant to local storage for one single process on single laptop  The data store will support the following :  It can be initialized using an optional file path. If one is not provided, it will reliably create itself in a reasonable location on the laptop. A new key-value pair can be added to the data store using the Create operation. The key is always a string - capped at 32chars. The value is always a JSON object - capped at 16KB. If Create is invoked for an existing key, an appropriate error must be returned. A Read operation on a key can be performed by providing the key, and receiving the value in response, as a JSON object. A Delete operation can be performed by providing the key. Every key supports setting a Time-To-Live property when it is created. This property is optional. If provided, it will be evaluated as an integer defining the number of seconds the key must be retained in the data store. Once the Time-To-Live for a key has expired, the key will no longer be available for Read or Delete operations. Appropriate error responses must always be returned to a client if it uses the data store in unexpected ways or breaches any limits The file size never exceeds 1GB The file is accessed by multi-threading
+# DataStore
+A file-based key-value data store that supports the basic CRD (create, read, and delete) operations. This data store is meant to be used as a local storage for one single process on one laptop. The data store can be exposed as a library to clients that can instantiate a class and work with the data store.
+<h2> How to consume the DataStore library?</h2>
+
+<p>First create a project and add the DataStore dependency, then you will be able instantiate and use the DataStore for your project usecase. For now the DataStore is available as a jar dependency only. Click here to download the <a href="datastore.jar">datastore.jar</a> <br/>
+<p>Here's an example given below</p>
+<pre>
+
+/**
+	 * Constructor initialize the DataStore with default storage location
+	 */
+DataStore myDataStore = new DataStore();// default location will be "C:\\Users\\Public\\Documents"
+
+/**
+	 * Constructor initialize the DataStore with given storage location
+	 * 
+	 * @param filePath
+	 *            the storage location path
+	 */
+DataStore myDataStore = new DataStore(String filePath);//pass file location
+
+/**
+	 * 
+	 * Method to create an element in the DataStore
+	 * 
+	 * @param key
+	 *            The key of the element
+	 * @param value
+	 *            The value of the element
+	 * @return status of the operation
+	 */
+myDataStore.create(String key, JSONObject value);
+
+/**
+	 * Method to create an element in the DataStore
+	 * 
+	 * @param key
+	 *            The key of the element
+	 * @param value
+	 *            The value of the element
+	 * @param timeToLive
+	 *            Number of seconds after which the element is destroyed
+	 * @return status of the operation
+	 */
+myDataStore.create(String key, JSONObject value, int timeToLive);
+
+/**
+	 * Method to read an element from the DataStore
+	 * 
+	 * @param key
+	 *            The key of the element to read the element
+	 * @return The value as type of JSONObject
+	 */
+myDataStore.read(String key)
+
+/**
+	 * Method to delete an element from the DataStore
+	 * 
+	 * @param key
+	 *            The key of the element to read the element
+	 * @return The status of the delete operation
+	 */
+myDataStore.delete(String key)
+</pre>
+
+<h3>Sample DataStore consumer</h3>
+<p>The sample DataStore consumer application is here <a href="https://github.com/mjohnbritto/DataStoreConsumer">DataStoreConsumer</a></p>
+
+<p>The sample response of DataStore consumer application given below</p>
+<pre>
+=============================================================
+========================CREATE ==============================
+=============================================================
+Create operation successful
+Operation failed due to key already available
+Operation failed due to key already available
+Create operation successful
+Operation failed due to key length exceeded the limit(32chars)
+====================AFTER WAIT===============
+Create operation successful
+Operation failed due to key already available
+Operation failed due to key already available
+Operation failed due to key already available
+=============================================================
+==========================READ===============================
+=============================================================
+{"firstName":"John","lastName":"Britto","address":"Chennai","age":"25"}
+{"firstName":"John","lastName":"Britto","address":"Chennai"}
+Operation failed due to key not available
+Operation failed due to key length exceeded the limit(32chars)
+====================AFTER WAIT===============
+Operation failed due to key not available
+{"firstName":"John","lastName":"Britto","address":"Chennai"}
+=============================================================
+========================DELETE ==============================
+=============================================================
+Operation failed due to key not available
+Record deletion successful
+Operation failed due to key not available
+Operation failed due to key not available
+Operation failed due to key length exceeded the limit(32chars)
+</pre>
+
+<p>Thank you!!!</p>
